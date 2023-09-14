@@ -28,4 +28,18 @@ spec:
               cd `mktemp -d`
               wget -qO- $(params.source-url) | tar xvz -m
               cd consumer  # useful for monorepos
-              ./mvnw verify -DexcludedGroups=acceptance
+              ./mvnw verify
+            volumeMounts:
+              - mountPath: /var/run/
+                name: dind-socket
+        sidecars:
+          - image: docker:20.10.17-dind
+            name: docker
+            securityContext:
+              privileged: true
+            volumeMounts:
+              - mountPath: /var/run/
+                name: dind-socket
+        volumes:
+          - name: dind-socket
+            emptyDir: {}
