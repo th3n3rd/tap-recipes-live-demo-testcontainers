@@ -6,10 +6,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 class GreetingsApi {
 
-    @GetMapping("/")
-    Greeting greet() {
-        return new Greeting("Hello World!");
+    private final EncodingApiClient encodingApiClient;
+
+    GreetingsApi(EncodingApiClient encodingApiClient) {
+        this.encodingApiClient = encodingApiClient;
     }
 
-    record Greeting(String content) {}
+    @GetMapping("/")
+    Greeting greet() {
+        var original = "Hello World!";
+        return new Greeting(original, encodingApiClient.encode(original));
+    }
+
+    record Greeting(String original, String encoded) {}
 }

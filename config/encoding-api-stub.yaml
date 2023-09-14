@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: encoding-api-stub
+  labels:
+    app: encoding-api-stub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: encoding-api-stub
+  template:
+    metadata:
+      name: encoding-api-stub
+      labels:
+        app: encoding-api-stub
+    spec:
+      containers:
+        - name: encoding-api-stub
+          image: mockserver/mockserver:5.15.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MOCKSERVER_INITIALIZATION_JSON_PATH
+              value: "/config/stubs.json"
+            - name: SERVER_PORT
+              value: "1080"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          securityContext:
+            runAsUser: 65534
+          ports:
+            - name: service-port
+              containerPort: 1080
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: service-port
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            successThreshold: 1
+            failureThreshold: 10
+          livenessProbe:
+            tcpSocket:
+              port: service-port
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 10
+      volumes:
+        - name: config
+          configMap:
+            name: encoding-api-stub-config
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: encoding-api-stub
+spec:
+  selector:
+    app: encoding-api-stub
+  ports:
+    - name: "service-port"
+      protocol: TCP
+      port: 80
+      targetPort: 1080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: encoding-api-stub-config
+data:
+  stubs.json: |
+    [
+      {
+        "httpRequest": {
+          "path": "/",
+          "method": "POST"
+        },
+        "httpResponse": {
+          "body": "SGVsbG8gV29ybGQh"
+        }
+      }
+    ]
