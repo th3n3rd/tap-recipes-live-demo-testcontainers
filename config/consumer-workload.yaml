@@ -5,6 +5,7 @@ kind: Workload
 metadata:
   name: consumer
   labels:
+    apps.tanzu.vmware.com/has-tests: "true"  # docs glitch: they show the value witout quotes
     app.kubernetes.io/part-of: consumer
     apps.tanzu.vmware.com/workload-type: web
 spec:
@@ -16,6 +17,9 @@ spec:
     - name: annotations
       value:
         autoscaling.knative.dev/min-scale: "1" # For rolling deployment
+    - name: testing_pipeline_matching_labels
+      value:
+        app.kubernetes.io/part-of: consumer
   source:
     git:
       url: https://github.com/th3n3rd/tap-recipes-live-demo-testcontainers.git
