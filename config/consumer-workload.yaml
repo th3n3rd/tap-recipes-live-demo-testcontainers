@@ -26,5 +26,7 @@ spec:
       ref:
         branch: main
     subPath: consumer # only useful for monorepos
-  env: []
+  env:
+    - name: encoding-api.uri
+      value: "http://encoding-api-stub"
   serviceClaims: []
